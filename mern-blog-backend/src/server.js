@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const Article = require('');
 require('./utils.js/db');
 
 let articlesInfo = {
@@ -15,6 +16,37 @@ let articlesInfo = {
 };
 
 app.use(express.json());
+
+app.post('/api/articles/', async (req, res, next) => {
+	try {
+		const article = await Article.create(req.body);
+		res.status(200).json(article);
+	} catch (error) {
+		if (!error.statusCode) {
+			error.statusCode = 500;
+		}
+		next(error);
+	}
+});
+
+app.get('/api/articles/:name', async (req, res, next) => {
+	const name = req.params.name;
+	try {
+		const article = await Article.findOne({ name });
+		if (!article) {
+			const error = new Error('No article found!');
+			error.status = 404;
+			throw error;
+		}
+		res.status(200).json(article);
+	} catch (error) {
+		if (!error.statusCode) {
+			error.statusCode = 500;
+		}
+		next(error);
+	}
+});
+
 app.post('/api/articles/:name/add-comments', (req, res, next) => {
 	const { username, text } = req.body;
 	const articleName = req.params.name;
