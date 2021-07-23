@@ -51,9 +51,31 @@ app.get('/api/articles/:name', async (req, res, next) => {
 app.post('/api/articles/:name/add-comments', async (req, res, next) => {
 	const { username, text } = req.body;
 	const articleName = req.params.name;
-
-	articlesInfo[articleName].comments.push({ username, text });
-	res.status(200).send(articlesInfo[articleName]);
+	try {
+		const article = await Article.findOne({ name: articleName });
+		if (!article) {
+			const error = new Error('No article found!');
+			error.status = 404;
+			throw error;
+		}
+		const updatedArticle = await Article.findOneAndUpdate(
+			{ name: articleName },
+			{
+				$set: {
+					comments: article.comments.concat({ username, text }),
+				},
+			},
+			{
+				new: true,
+			}
+		);
+		res.status(200).json(updatedArticle);
+	} catch (error) {
+		if (!error.statusCode) {
+			error.statusCode = 500;
+		}
+		next(error);
+	}
 });
 
 app.use((error, req, res, next) => {

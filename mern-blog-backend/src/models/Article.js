@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const articleSchema = new Schema({
 	name: String,
 	comments: {
-		type: [String],
+		type: [{}],
 		default: [],
 	},
 });
