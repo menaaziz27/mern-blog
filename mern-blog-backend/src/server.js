@@ -31,7 +31,6 @@ app.post('/api/articles/', async (req, res, next) => {
 
 app.get('/api/articles/:name', async (req, res, next) => {
 	const name = req.params.name;
-	console.log(name);
 	try {
 		const article = await Article.findOne({ name });
 		if (!article) {
